@@ -415,7 +415,7 @@ int ext4_fname_usr_to_hash(struct ext4_fname_crypto_ctx *ctx,
 	      ((iname->name[1] == '.') && (iname->len == 2))))) {
 		fname->disk_name.name = (unsigned char *) iname->name;
 		fname->disk_name.len = iname->len;
-		goto out;
+		return 0;
 	}
 	ret = ext4_get_encryption_info(dir);
 	if (ret)
@@ -425,38 +425,34 @@ int ext4_fname_usr_to_hash(struct ext4_fname_crypto_ctx *ctx,
 		ret = ext4_fname_crypto_alloc_buffer(dir, iname->len,
 						     &fname->crypto_buf);
 		if (ret < 0)
-			goto out;
+			return ret;
 		ret = ext4_fname_encrypt(dir, iname, &fname->crypto_buf);
 		if (ret < 0)
-			goto out;
+			goto errout;
 		fname->disk_name.name = fname->crypto_buf.name;
 		fname->disk_name.len = fname->crypto_buf.len;
-		ret = 0;
-		goto out;
-	}
-	if (!lookup) {
-		ret = -EACCES;
-		goto out;
->>>>>>> af081765626b... ext4 crypto: reorganize how we store keys in the inode
-	}
-
-	if (!ctx->has_valid_key && iname->name[0] == '_') {
-		if (iname->len != 33)
-			return -ENOENT;
-		ret = digest_decode(iname->name+1, iname->len, buf);
-		if (ret != 24)
-			return -ENOENT;
-		memcpy(&hinfo->hash, buf, 4);
-		memcpy(&hinfo->minor_hash, buf + 4, 4);
 		return 0;
 	}
+	if (!lookup)
+		return -EACCES;
 
-	if (!ctx->has_valid_key && iname->name[0] != '_') {
-		if (iname->len > 43)
-			return -ENOENT;
-		ret = digest_decode(iname->name, iname->len, buf);
-		ext4fs_dirhash(buf, ret, hinfo);
-		return 0;
+	/* We don't have the key and we are doing a lookup; decode the
+	 * user-supplied name
+	 */
+	if (iname->name[0] == '_')
+		bigname = 1;
+	if ((bigname && (iname->len != 33)) ||
+	    (!bigname && (iname->len > 43)))
+		return -ENOENT;
+
+	fname->crypto_buf.name = kmalloc(32, GFP_KERNEL);
+	if (fname->crypto_buf.name == NULL)
+		return -ENOMEM;
+	ret = digest_decode(iname->name + bigname, iname->len - bigname,
+			    fname->crypto_buf.name);
+	if (ret < 0) {
+		ret = -ENOENT;
+		goto errout;
 	}
 
 	/* First encrypt the plaintext name */
@@ -469,8 +465,10 @@ int ext4_fname_usr_to_hash(struct ext4_fname_crypto_ctx *ctx,
 		ext4fs_dirhash(tmp.name, tmp.len, hinfo);
 		ret = 0;
 	}
-	ret = 0;
-out:
+	return 0;
+errout:
+	kfree(fname->crypto_buf.name);
+	fname->crypto_buf.name = NULL;
 	return ret;
 }
 
