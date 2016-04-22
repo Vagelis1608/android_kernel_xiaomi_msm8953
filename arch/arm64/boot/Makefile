@@ -30,6 +30,9 @@ DTB_OBJS := $(addprefix $(obj)/dts/qcom/,$(DTB_LIST))
 $(obj)/Image: vmlinux FORCE
 	$(call if_changed,objcopy)
 
+$(obj)/Image-dtb: $(obj)/Image $(DTB_OBJS) FORCE
+	$(call if_changed,cat)
+
 $(obj)/Image.gz: $(obj)/Image FORCE
 	$(call if_changed,gzip)
 
