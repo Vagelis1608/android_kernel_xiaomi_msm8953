@@ -223,6 +223,10 @@ struct zz_dbs_tuners {
 	unsigned int afs_threshold2;
 	unsigned int afs_threshold3;
 	unsigned int afs_threshold4;
+	unsigned int boost_enabled;
+	unsigned int boost_count;
+	unsigned int boost_ceiling;
+>>>>>>> 208db2b447a7... cpufreq: chill: Major cleanup, move changes from governor.h to chill.h
 };
 
 /* Common Governor data across policies */
