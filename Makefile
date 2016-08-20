@@ -417,6 +417,7 @@ KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
+<<<<<<< HEAD
 		   -Wno-format-security \
 		   -std=gnu89
 			 $(GEN_OPT_FLAGS)
@@ -427,6 +428,12 @@ KBUILD_CFLAGS	+= -O2 -g0 -DNDEBUG
 # Strip linker
 LD		+= --strip-debug -O2
 
+=======
+		   -Wno-format-security -Wno-discarded-array-qualifiers -Wno-memset-transposed-args \
+		   -Wno-bool-compare -Wno-logical-not-parentheses -Wno-switch-bool \
+		   -std=gnu89 \
+		   $(GEN_OPT_FLAGS)
+>>>>>>> b808e0796445... toolchain: fix compile errors because of default unallowed warnings in gcc 5.x.x
 KBUILD_AFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_CFLAGS_KERNEL := $(GEN_OPT_FLAGS)
 KBUILD_AFLAGS   := -D__ASSEMBLY__
