@@ -30,6 +30,7 @@
 #include "trace.h"
 #include <trace/events/f2fs.h>
 #include <trace/events/android_fs.h>
+<<<<<<< HEAD
 
 static bool __is_cp_guaranteed(struct page *page)
 {
@@ -50,6 +51,8 @@ static bool __is_cp_guaranteed(struct page *page)
 		return true;
 	return false;
 }
+=======
+>>>>>>> a533ec7f96eb... ANDROID: fs: FS tracepoints to track IO.
 
 static void f2fs_read_end_io(struct bio *bio, int err)
 {
