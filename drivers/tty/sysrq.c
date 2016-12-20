@@ -55,6 +55,9 @@
 static int __read_mostly sysrq_enabled = CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE;
 static bool __read_mostly sysrq_always_enabled;
 
+unsigned short platform_sysrq_reset_seq[] __weak = { KEY_RESERVED };
+int sysrq_reset_downtime_ms __weak;
+
 bool sysrq_on(void)
 {
 	return sysrq_enabled || sysrq_always_enabled;
