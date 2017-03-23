@@ -558,7 +558,14 @@ CONFIG_CPU_FREQ_GOV_ONDEMAND=y
 CONFIG_CPU_FREQ_GOV_INTERACTIVE=y
 CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
 # CONFIG_CPUFREQ_DT is not set
+<<<<<<< HEAD:arch/arm64/configs/mido_defconfig
 # CONFIG_CPU_BOOST is not set
+=======
+CONFIG_CPU_BOOST=y
+CONFIG_MSM_TRACK_FREQ_TARGET_INDEX=y 
+
+
+>>>>>>> e5c5bb1a5c04... yarpiin_defconfig: Enable CONFIG_MSM_TRACK_FREQ_TARGET_INDEX:arch/arm64/configs/boeffla_defconfig
 
 #
 # ARM CPU frequency scaling drivers
