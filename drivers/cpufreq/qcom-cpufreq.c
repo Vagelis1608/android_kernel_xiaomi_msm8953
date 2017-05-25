@@ -111,6 +111,7 @@ static int msm_cpufreq_target(struct cpufreq_policy *policy,
 	if (!ret)
 		policy->cur_index = index;
 #endif
+
 done:
 	mutex_unlock(&per_cpu(suspend_data, policy->cpu).suspend_mutex);
 	return ret;
