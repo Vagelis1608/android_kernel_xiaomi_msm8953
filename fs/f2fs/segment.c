@@ -317,7 +317,7 @@ retry:
 			err = do_write_data_page(&fio);
 			if (err) {
 				if (err == -ENOMEM) {
-					congestion_wait(BLK_RW_ASYNC, HZ/50);
+					congestion_wait(BLK_RW_SYNC, msecs_to_jiffies(20));
 					cond_resched();
 					goto retry;
 				}
@@ -1279,6 +1279,7 @@ static int issue_discard_thread(void *data)
 
 	} while (!kthread_should_stop());
 	return 0;
+
 }
 
 #ifdef CONFIG_BLK_DEV_ZONED
