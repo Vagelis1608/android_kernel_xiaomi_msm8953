@@ -1200,17 +1200,11 @@ repeat:
 	__issue_discard_cmd(sbi, true);
 	__wait_discard_cmd(sbi, true);
 
-	congestion_wait(BLK_RW_SYNC, HZ/50);
+	congestion_wait(BLK_RW_SYNC, msecs_to_jiffies(20));
 
-<<<<<<< HEAD
 	wait_event_interruptible(*q, kthread_should_stop() ||
 				atomic_read(&dcc->discard_cmd_cnt));
 	goto repeat;
-=======
-		congestion_wait(BLK_RW_SYNC, msecs_to_jiffies(20));
-	} while (!kthread_should_stop());
-	return 0;
->>>>>>> 16c5c0a82809... FS: F2FS: dont use HZ, use msecs_to_jiffies :)
 }
 
 #ifdef CONFIG_BLK_DEV_ZONED
