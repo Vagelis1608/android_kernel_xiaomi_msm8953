@@ -396,6 +396,7 @@ static struct mux_clk cpu_debug_ter_mux = {
 	.base = &virt_bases[APCS0_DBG_BASE],
 	.c = {
 		.dbg_name = "cpu_debug_ter_mux",
+		.flags = CLKFLAG_NO_RATE_CACHE,
 		.ops = &clk_ops_gen_mux,
 		CLK_INIT(cpu_debug_ter_mux.c),
 	},
@@ -414,6 +415,7 @@ static struct mux_clk cpu_debug_sec_mux = {
 	.base = &virt_bases[APCS0_DBG_BASE],
 	.c = {
 		.dbg_name = "cpu_debug_sec_mux",
+		.flags = CLKFLAG_NO_RATE_CACHE,
 		.ops = &clk_ops_gen_mux,
 		CLK_INIT(cpu_debug_sec_mux.c),
 	},
@@ -432,6 +434,7 @@ static struct mux_clk cpu_debug_pri_mux = {
 	.base = &virt_bases[APCS0_DBG_BASE],
 	.c = {
 		.dbg_name = "cpu_debug_pri_mux",
+		.flags = CLKFLAG_NO_RATE_CACHE,
 		.ops = &clk_ops_gen_mux,
 		CLK_INIT(cpu_debug_pri_mux.c),
 	},
