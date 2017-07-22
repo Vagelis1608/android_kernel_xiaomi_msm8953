@@ -16,6 +16,7 @@
 #include <linux/kthread.h>
 #include <linux/swap.h>
 #include <linux/timer.h>
+#include <linux/freezer.h>
 
 #include "f2fs.h"
 #include "segment.h"
@@ -316,7 +317,7 @@ retry:
 			err = do_write_data_page(&fio);
 			if (err) {
 				if (err == -ENOMEM) {
-					congestion_wait(BLK_RW_ASYNC, HZ/50);
+					congestion_wait(BLK_RW_ASYNC, msecs_to_jiffies(20));
 					cond_resched();
 					goto retry;
 				}
@@ -484,6 +485,8 @@ repeat:
 	if (kthread_should_stop())
 		return 0;
 
+	sb_start_intwrite(sbi->sb);
+
 	if (!llist_empty(&fcc->issue_list)) {
 		struct flush_cmd *cmd, *next;
 		int ret;
@@ -501,6 +504,8 @@ repeat:
 		}
 		fcc->dispatch_list = NULL;
 	}
+
+	sb_end_intwrite(sbi->sb);
 
 	wait_event_interruptible(*q,
 		kthread_should_stop() || !llist_empty(&fcc->issue_list));
@@ -1197,18 +1202,28 @@ static int issue_discard_thread(void *data)
 	struct f2fs_sb_info *sbi = data;
 	struct discard_cmd_control *dcc = SM_I(sbi)->dcc_info;
 	wait_queue_head_t *q = &dcc->discard_wait_queue;
-repeat:
-	if (kthread_should_stop())
-		return 0;
 
-	__issue_discard_cmd(sbi, true);
-	__wait_discard_cmd(sbi, true);
+	set_freezable();
 
-	congestion_wait(BLK_RW_SYNC, msecs_to_jiffies(20));
+	do {
+		wait_event_interruptible(*q, kthread_should_stop() ||
+					freezing(current) ||
+					atomic_read(&dcc->discard_cmd_cnt));
+		if (try_to_freeze())
+			continue;
+		if (kthread_should_stop())
+			return 0;
 
-	wait_event_interruptible(*q, kthread_should_stop() ||
-				atomic_read(&dcc->discard_cmd_cnt));
-	goto repeat;
+		sb_start_intwrite(sbi->sb);
+
+		__issue_discard_cmd(sbi, true);
+		__wait_discard_cmd(sbi, true);
+
+		sb_end_intwrite(sbi->sb);
+
+		congestion_wait(BLK_RW_SYNC, HZ/50);
+	} while (!kthread_should_stop());
+	return 0;
 }
 
 #ifdef CONFIG_BLK_DEV_ZONED
