@@ -433,6 +433,11 @@ int ext4_encrypted_zeroout(struct inode *inode, struct ext4_extent *ex)
 			goto errout;
 		}
 		err = submit_bio_wait(WRITE, bio);
+<<<<<<< HEAD
+=======
+		if ((err == 0) && !test_bit(BIO_UPTODATE, &bio->bi_flags))
+			err = -EIO;
+>>>>>>> ba420f35a3cb... ext4: ext4_encrypted_zeroout: fix merge error with duplicated call
 		bio_put(bio);
 		if (err)
 			goto errout;
