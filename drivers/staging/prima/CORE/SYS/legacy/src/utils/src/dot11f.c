@@ -45467,7 +45467,6 @@ static tANI_U32 PackCore(tpAniSirGlobal pCtx,
                    return DOT11F_INTERNAL_ERROR;
            }
 
-skip_dup_ie:
         pBufRemaining += len;
         nBufRemaining -= len;
         *pnConsumed   += len;
