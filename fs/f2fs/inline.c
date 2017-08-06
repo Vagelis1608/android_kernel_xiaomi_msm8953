@@ -95,14 +95,6 @@ int f2fs_read_inline_data(struct inode *inode, struct page *page)
 						page_offset(page),
 						PAGE_SIZE, current->pid,
 						path, current->comm);
-	trace_android_fs_dataread_start(inode, page_offset(page),
-					PAGE_SIZE, current->pid,
-					current->comm);
-
-	if (page->index) {
-		zero_user_segment(page, 0, PAGE_CACHE_SIZE);
-		goto out;
->>>>>>> a533ec7f96eb... ANDROID: fs: FS tracepoints to track IO.
 	}
 
 	ipage = get_node_page(F2FS_I_SB(inode), inode->i_ino);
