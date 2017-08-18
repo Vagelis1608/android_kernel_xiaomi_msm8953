@@ -1,5 +1,7 @@
 #!/bin/sh
-echo " KILLA™ kernel by Rahif "
+
+echo " KILLA™-mido kernel by Rahif "
+
 export CROSS_COMPILE="/home/rahif/android/kernels/toolchains/aarch64-linux-android-4.9/bin/aarch64-linux-android-"
 
 export ARCH=arm64
