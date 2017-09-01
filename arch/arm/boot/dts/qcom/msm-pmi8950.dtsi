@@ -214,7 +214,8 @@
 			qcom,charge-unknown-battery;
 			qcom,rparasitic-uohm = <100000>;
 			qcom,bms-psy-name = "bms";
-			qcom,thermal-mitigation = <1500 700 600 0>;
+      qcom,fastchg-current-ma = <3000>;
+			qcom,thermal-mitigation = <1500 700 600 325>;
 			qcom,pmic-revid = <&pmi8950_revid>;
 			qcom,force-aicl-rerun;
 			qcom,aicl-rerun-period-s = <180>;
