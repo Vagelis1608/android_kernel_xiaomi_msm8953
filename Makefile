@@ -635,6 +635,11 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning,unused-const-variable,)
 
 # Needed to unbreak GCC 7.x and above
 # KBUILD_CFLAGS   += $(call cc-option,-fno-store-merging,)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
+KBUILD_CFLAGS	+= $(call cc-option,-fno-PIE)
+KBUILD_AFLAGS	+= $(call cc-option,-fno-PIE)
+>>>>>>> c6a3c44e5bf4dbd0abd2053a7d90e313028c1df5
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
