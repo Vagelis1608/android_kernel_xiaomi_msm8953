@@ -199,12 +199,6 @@ int fb_cmap_to_user(const struct fb_cmap *from, struct fb_cmap_user *to)
 		return -EINVAL;
 
 	size = min_t(size_t, to->len - tooff, from->len - fromoff);
-<<<<<<< HEAD
-	if (size == 0)
-		return -EINVAL;
-	size *= sizeof(u16);
-=======
->>>>>>> c6a3c44e5bf4dbd0abd2053a7d90e313028c1df5
 	if (size == 0)
 		return -EINVAL;
 	size *= sizeof(u16);
