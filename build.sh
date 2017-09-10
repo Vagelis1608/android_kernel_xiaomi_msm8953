@@ -33,7 +33,7 @@ kernel_dir=$PWD
 build=$kernel_dir/out
 export CROSS_COMPILE=~/gcc-prebuilts/bin/aarch64-linaro-linux-android-
 kernel="Soviet"
-version="5.0"
+version="R5.3"
 vendor="xiaomi"
 device="mido"
 zip=zip
@@ -128,7 +128,7 @@ if [ -f "$zip"/"$kerneltype" ]; then
 	cd ..
 	rm -rf arch/arm64/boot/"$kerneltype"
 	echo "Generating changelog..."
-        git --no-pager log --pretty=oneline --abbrev-commit 63940662c5bd707159770d06b4db10f6ee8b73af..HEAD > zip/changelog.txt
+        git --no-pager log --pretty=oneline --abbrev-commit 0c083093327fb6488456dabd868bf50a18371cf8..HEAD > zip/changelog.txt
         paste zip/changelog.txt
         #rm zip/changelog.txt
 	export outdir=""$build""
