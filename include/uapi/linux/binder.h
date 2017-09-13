@@ -125,6 +125,25 @@ struct flat_binder_object {
 	binder_uintptr_t	cookie;
 };
 
+/**
+ * struct binder_fd_object - describes a filedescriptor to be fixed up.
+ * @hdr:	common header structure
+ * @pad_flags:	padding to remain compatible with old userspace code
+ * @pad_binder:	padding to remain compatible with old userspace code
+ * @fd:		file descriptor
+ * @cookie:	opaque data, used by user-space
+ */
+struct binder_fd_object {
+	struct binder_object_header	hdr;
+	__u32				pad_flags;
+	union {
+		binder_uintptr_t	pad_binder;
+		__u32			fd;
+	};
+
+	binder_uintptr_t		cookie;
+};
+
 /* struct binder_buffer_object - object describing a userspace buffer
  * @hdr:		common header structure
  * @flags:		one or more BINDER_BUFFER_* flags
@@ -159,6 +178,7 @@ enum {
 
 /* struct binder_fd_array_object - object describing an array of fds in a buffer
  * @hdr:		common header structure
+ * @pad:		padding to ensure correct alignment
  * @num_fds:		number of file descriptors in the buffer
  * @parent:		index in offset array to buffer holding the fd array
  * @parent_offset:	start offset of fd array in the buffer
@@ -179,28 +199,10 @@ enum {
  */
 struct binder_fd_array_object {
 	struct binder_object_header	hdr;
+	__u32				pad;
 	binder_size_t			num_fds;
 	binder_size_t			parent;
 	binder_size_t			parent_offset;
-};
-
-/**
- * struct binder_fd_object - describes a filedescriptor to be fixed up.
- * @hdr:	common header structure
- * @pad_flags:	padding to remain compatible with old userspace code
- * @pad_binder:	padding to remain compatible with old userspace code
- * @fd:		file descriptor
- * @cookie:	opaque data, used by user-space
- */
-struct binder_fd_object {
-	struct binder_object_header	hdr;
-	__u32				pad_flags;
-	union {
-		binder_uintptr_t	pad_binder;
-		__u32			fd;
-	};
-
-	binder_uintptr_t		cookie;
 };
 
 /*
@@ -507,4 +509,3 @@ enum binder_driver_command_protocol {
 };
 
 #endif /* _UAPI_LINUX_BINDER_H */
-
