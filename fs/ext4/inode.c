@@ -2567,13 +2567,36 @@ retry:
 				done = true;
 			}
 		}
-		ext4_journal_stop(handle);
+		/*
+		 * Caution: If the handle is synchronous,
+		 * ext4_journal_stop() can wait for transaction commit
+		 * to finish which may depend on writeback of pages to
+		 * complete or on page lock to be released.  In that
+		 * case, we have to wait until after after we have
+		 * submitted all the IO, released page locks we hold,
+		 * and dropped io_end reference (for extent conversion
+		 * to be able to complete) before stopping the handle.
+		 */
+		if (!ext4_handle_valid(handle) || handle->h_sync == 0) {
+			ext4_journal_stop(handle);
+			handle = NULL;
+		}
 		/* Submit prepared bio */
 		ext4_io_submit(&mpd.io_submit);
 		/* Unlock pages we didn't use */
 		mpage_release_unused_pages(&mpd, give_up_on_write);
-		/* Drop our io_end reference we got from init */
-		ext4_put_io_end(mpd.io_submit.io_end);
+		/*
+		 * Drop our io_end reference we got from init. We have
+		 * to be careful and use deferred io_end finishing if
+		 * we are still holding the transaction as we can
+		 * release the last reference to io_end which may end
+		 * up doing unwritten extent conversion.
+		 */
+		if (handle) {
+			ext4_put_io_end_defer(mpd.io_submit.io_end);
+			ext4_journal_stop(handle);
+		} else
+			ext4_put_io_end(mpd.io_submit.io_end);
 
 		if (ret == -ENOSPC && sbi->s_journal) {
 			/*
@@ -3597,7 +3620,6 @@ int ext4_can_truncate(struct inode *inode)
 
 int ext4_punch_hole(struct inode *inode, loff_t offset, loff_t length)
 {
-#if 0
 	struct super_block *sb = inode->i_sb;
 	ext4_lblk_t first_block, stop_block;
 	struct address_space *mapping = inode->i_mapping;
@@ -3721,12 +3743,6 @@ out_dio:
 out_mutex:
 	mutex_unlock(&inode->i_mutex);
 	return ret;
-#else
-	/*
-	 * Disabled as per b/28760453
-	 */
-	return -EOPNOTSUPP;
-#endif
 }
 
 int ext4_inode_attach_jinode(struct inode *inode)
@@ -5039,6 +5055,8 @@ int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
 	might_sleep();
 	trace_ext4_mark_inode_dirty(inode, _RET_IP_);
 	err = ext4_reserve_inode_write(handle, inode, &iloc);
+	if (err)
+		return err;
 	if (ext4_handle_valid(handle) &&
 	    EXT4_I(inode)->i_extra_isize < sbi->s_want_extra_isize &&
 	    !ext4_test_inode_state(inode, EXT4_STATE_NO_EXPAND)) {
@@ -5069,9 +5087,7 @@ int ext4_mark_inode_dirty(handle_t *handle, struct inode *inode)
 			}
 		}
 	}
-	if (!err)
-		err = ext4_mark_iloc_dirty(handle, inode, &iloc);
-	return err;
+	return ext4_mark_iloc_dirty(handle, inode, &iloc);
 }
 
 /*

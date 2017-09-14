@@ -120,7 +120,6 @@ static int ext4_fname_encrypt(struct inode *inode,
 	ablkcipher_request_set_crypt(req, &src_sg, &dst_sg, ciphertext_len, iv);
 	res = crypto_ablkcipher_encrypt(req);
 	if (res == -EINPROGRESS || res == -EBUSY) {
-		BUG_ON(req->base.data != &ecr);
 		wait_for_completion(&ecr.completion);
 		res = ecr.res;
 	}
@@ -182,7 +181,6 @@ static int ext4_fname_decrypt(struct inode *inode,
 	ablkcipher_request_set_crypt(req, &src_sg, &dst_sg, iname->len, iv);
 	res = crypto_ablkcipher_decrypt(req);
 	if (res == -EINPROGRESS || res == -EBUSY) {
-		BUG_ON(req->base.data != &ecr);
 		wait_for_completion(&ecr.completion);
 		res = ecr.res;
 	}
@@ -394,23 +392,9 @@ int ext4_fname_usr_to_disk(struct inode *inode,
 	return -EACCES;
 }
 
-/*
- * Calculate the htree hash from a filename from user space
- */
-int ext4_fname_usr_to_hash(struct ext4_fname_crypto_ctx *ctx,
-			    const struct qstr *iname,
-			    struct dx_hash_info *hinfo)
+int ext4_fname_setup_filename(struct inode *dir, const struct qstr *iname,
+			      int lookup, struct ext4_filename *fname)
 {
-	struct ext4_str tmp;
-	int ret = 0;
-	char buf[EXT4_FNAME_CRYPTO_DIGEST_SIZE+1];
-
-	if (!ctx ||
-	    ((iname->name[0] == '.') &&
-	     ((iname->len == 1) ||
-	      ((iname->name[1] == '.') && (iname->len == 2))))) {
-		ext4fs_dirhash(iname->name, iname->len, hinfo);
-		return 0;
 	struct ext4_crypt_info *ci;
 	int ret = 0, bigname = 0;
 
@@ -462,16 +446,13 @@ int ext4_fname_usr_to_hash(struct ext4_fname_crypto_ctx *ctx,
 		ret = -ENOENT;
 		goto errout;
 	}
-
-	/* First encrypt the plaintext name */
-	ret = ext4_fname_crypto_alloc_buffer(ctx, iname->len, &tmp);
-	if (ret < 0)
-		return ret;
-
-	ret = ext4_fname_encrypt(ctx, iname, &tmp);
-	if (ret >= 0) {
-		ext4fs_dirhash(tmp.name, tmp.len, hinfo);
-		ret = 0;
+	fname->crypto_buf.len = ret;
+	if (bigname) {
+		memcpy(&fname->hinfo.hash, fname->crypto_buf.name, 4);
+		memcpy(&fname->hinfo.minor_hash, fname->crypto_buf.name + 4, 4);
+	} else {
+		fname->disk_name.name = fname->crypto_buf.name;
+		fname->disk_name.len = fname->crypto_buf.len;
 	}
 	return 0;
 errout:
@@ -480,56 +461,10 @@ errout:
 	return ret;
 }
 
-int ext4_fname_match(struct ext4_fname_crypto_ctx *ctx, struct ext4_str *cstr,
-		     int len, const char * const name,
-		     struct ext4_dir_entry_2 *de)
+void ext4_fname_free_filename(struct ext4_filename *fname)
 {
-	int ret = -ENOENT;
-	int bigname = (*name == '_');
-
-	if (ctx->has_valid_key) {
-		if (cstr->name == NULL) {
-			struct qstr istr;
-
-			ret = ext4_fname_crypto_alloc_buffer(ctx, len, cstr);
-			if (ret < 0)
-				goto errout;
-			istr.name = name;
-			istr.len = len;
-			ret = ext4_fname_encrypt(ctx, &istr, cstr);
-			if (ret < 0)
-				goto errout;
-		}
-	} else {
-		if (cstr->name == NULL) {
-			cstr->name = kmalloc(32, GFP_KERNEL);
-			if (cstr->name == NULL)
-				return -ENOMEM;
-			if ((bigname && (len != 33)) ||
-			    (!bigname && (len > 43)))
-				goto errout;
-			ret = digest_decode(name+bigname, len-bigname,
-					    cstr->name);
-			if (ret < 0) {
-				ret = -ENOENT;
-				goto errout;
-			}
-			cstr->len = ret;
-		}
-		if (bigname) {
-			if (de->name_len < 16)
-				return 0;
-			ret = memcmp(de->name + de->name_len - 16,
-				     cstr->name + 8, 16);
-			return (ret == 0) ? 1 : 0;
-		}
-	}
-	if (de->name_len != cstr->len)
-		return 0;
-	ret = memcmp(de->name, cstr->name, cstr->len);
-	return (ret == 0) ? 1 : 0;
-errout:
-	kfree(cstr->name);
-	cstr->name = NULL;
-	return ret;
+	kfree(fname->crypto_buf.name);
+	fname->crypto_buf.name = NULL;
+	fname->usr_fname = NULL;
+	fname->disk_name.name = NULL;
 }
