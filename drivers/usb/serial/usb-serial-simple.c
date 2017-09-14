@@ -53,10 +53,7 @@ DEVICE(funsoft, FUNSOFT_IDS);
 
 /* Infineon Flashloader driver */
 #define FLASHLOADER_IDS()		\
-<<<<<<< HEAD
 	{ USB_DEVICE_INTERFACE_CLASS(0x058b, 0x0041, USB_CLASS_CDC_DATA) }, \
-=======
->>>>>>> ba0ce26cc2bb... 3.18: Fix and improve upon some backports
 	{ USB_DEVICE(0x8087, 0x0716) }, \
 	{ USB_DEVICE(0x8087, 0x0801) }
 DEVICE(flashloader, FLASHLOADER_IDS);
