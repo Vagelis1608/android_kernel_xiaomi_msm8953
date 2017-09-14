@@ -1728,19 +1728,6 @@ random_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
 static ssize_t
 urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
 {
-<<<<<<< HEAD
-	static int maxwarn = 10;
-	int ret;
-
-	if (unlikely(nonblocking_pool.initialized == 0) &&
-	    maxwarn > 0) {
-		maxwarn--;
-		printk(KERN_NOTICE "random: %s: uninitialized urandom read "
-		       "(%zd bytes read, %d bits of entropy available)\n",
-		       current->comm, nbytes, nonblocking_pool.entropy_total);
-	}
-
-=======
 	unsigned long flags;
 	static int maxwarn = 10;
 	int ret;
@@ -1754,7 +1741,6 @@ urandom_read(struct file *file, char __user *buf, size_t nbytes, loff_t *ppos)
 		crng_init_cnt = 0;
 		spin_unlock_irqrestore(&primary_crng.lock, flags);
 	}
->>>>>>> 95d78d75936f... random: fully switch to Chacha20
 	nbytes = min_t(size_t, nbytes, INT_MAX >> (ENTROPY_SHIFT + 3));
 	ret = extract_crng_user(buf, nbytes);
 	trace_urandom_read(8 * nbytes, 0, ENTROPY_BITS(&input_pool));
