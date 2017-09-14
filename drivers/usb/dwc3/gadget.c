@@ -2573,13 +2573,10 @@ static int dwc3_cleanup_done_reqs(struct dwc3 *dwc, struct dwc3_ep *dep,
 			return 1;
 		}
 
-<<<<<<< HEAD
 		/* Make sure that not to queue any TRB if HWO bit is set. */
 		if (req->trb->ctrl & DWC3_TRB_CTRL_HWO)
 			return 0;
 
-=======
->>>>>>> ba0ce26cc2bb... 3.18: Fix and improve upon some backports
 		chain = req->request.num_mapped_sgs > 0;
 		i = 0;
 		do {
