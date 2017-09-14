@@ -317,7 +317,7 @@ retry:
 			err = do_write_data_page(&fio);
 			if (err) {
 				if (err == -ENOMEM) {
-					congestion_wait(BLK_RW_SYNC, msecs_to_jiffies(20));
+					congestion_wait(BLK_RW_ASYNC, HZ/50);
 					cond_resched();
 					goto retry;
 				}
@@ -1279,7 +1279,6 @@ static int issue_discard_thread(void *data)
 
 	} while (!kthread_should_stop());
 	return 0;
-
 }
 
 #ifdef CONFIG_BLK_DEV_ZONED
@@ -2688,6 +2687,8 @@ static int read_normal_summaries(struct f2fs_sb_info *sbi, int type)
 
 static int restore_curseg_summaries(struct f2fs_sb_info *sbi)
 {
+	struct f2fs_journal *sit_j = CURSEG_I(sbi, CURSEG_COLD_DATA)->journal;
+	struct f2fs_journal *nat_j = CURSEG_I(sbi, CURSEG_HOT_DATA)->journal;
 	int type = CURSEG_HOT_DATA;
 	int err;
 
@@ -2713,6 +2714,11 @@ static int restore_curseg_summaries(struct f2fs_sb_info *sbi)
 		if (err)
 			return err;
 	}
+
+	/* sanity check for summary blocks */
+	if (nats_in_cursum(nat_j) > NAT_JOURNAL_ENTRIES ||
+			sits_in_cursum(sit_j) > SIT_JOURNAL_ENTRIES)
+		return -EINVAL;
 
 	return 0;
 }
