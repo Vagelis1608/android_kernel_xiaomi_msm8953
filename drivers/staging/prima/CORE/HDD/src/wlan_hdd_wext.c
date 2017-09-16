@@ -81,9 +81,6 @@
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
-#ifdef CONFIG_POWERSUSPEND
-#include <linux/powersuspend.h>
-#endif
 #include "wlan_hdd_power.h"
 #include "qwlan_version.h"
 #include "wlan_hdd_host_offload.h"
@@ -112,10 +109,6 @@
 #ifdef CONFIG_HAS_EARLYSUSPEND
 extern void hdd_suspend_wlan(struct early_suspend *wlan_suspend);
 extern void hdd_resume_wlan(struct early_suspend *wlan_suspend);
-#endif
-#ifdef CONFIG_POWERSUSPEND
-extern void hdd_suspend_wlan(struct power_suspend *wlan_suspend);
-extern void hdd_resume_wlan(struct power_suspend *wlan_suspend);
 #endif
 
 #ifdef FEATURE_OEM_DATA_SUPPORT
@@ -1642,7 +1635,7 @@ v_U8_t* wlan_hdd_get_vendor_oui_ie_ptr(v_U8_t *oui, v_U8_t oui_size, v_U8_t *ie,
                     eid,elem_len,left);
             return NULL;
         }
-        if (elem_id == eid)
+        if ((elem_id == eid) && (elem_len >= oui_size))
         {
             if(memcmp( &ptr[2], oui, oui_size)==0)
                 return ptr;
@@ -5662,7 +5655,7 @@ static int __iw_setint_getnone(struct net_device *dev,
     int set_value = value[1];
     int ret = 0; /* success */
     int enable_pbm, enable_mp;
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
     v_U8_t nEnableSuspendOld;
 #endif
 
@@ -5880,7 +5873,7 @@ static int __iw_setint_getnone(struct net_device *dev,
                      ret = -EINVAL;
                  break;
               case  8: //Request Standby
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #endif
                  break;
               case  9: //Start Auto Bmps Timer
@@ -5895,23 +5888,23 @@ static int __iw_setint_getnone(struct net_device *dev,
                  else
                      ret = -EINVAL;
                  break;
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
               case  11://suspend to standby
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
                  nEnableSuspendOld = (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend;
                  (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend = 1;
                  (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend = nEnableSuspendOld;
 #endif
                  break;
               case  12://suspend to deep sleep
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
                  nEnableSuspendOld = (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend;
                  (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend = 2;
                  (WLAN_HDD_GET_CTX(pAdapter))->cfg_ini->nEnableSuspend = nEnableSuspendOld;
 #endif
                  break;
               case  13://resume from suspend
-#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef CONFIG_HAS_EARLYSUSPEND
 #endif
                  break;
 #endif
@@ -6743,14 +6736,12 @@ static int __iw_setnone_getint(struct net_device *dev,
             break;
         }
 
-#ifdef WLAN_DEBUG
         case WE_GET_WDI_DBG:
         {
            wpalTraceDisplay();
            *value = 0;
            break;
         }
-#endif
 
         case WE_GET_SAP_AUTO_CHANNEL_SELECTION:
         {
@@ -6843,13 +6834,11 @@ int __iw_set_three_ints_getnone(struct net_device *dev,
             vos_trace_setValue( value[1], value[2], value[3]);
             break;
         }
-#ifdef WLAN_DEBUG
         case WE_SET_WDI_DBG:
         {
             wpalTraceSetLevel( value[1], value[2], value[3]);
             break;
         }
-#endif
         case WE_SET_SAP_CHANNELS:
         {
             ret = iw_softap_set_channel_range( dev, value[1], value[2], value[3]);
@@ -7154,7 +7143,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
                 tlState = smeGetTLSTAState(hHal, pHddStaCtx->conn_info.staId[0]);
 
                 buf = scnprintf(extra + len, WE_MAX_STR_LEN - len,
-#ifdef TRACE_RECORD
                         "\n HDD Conn State - %s "
                         "\n \n SME State:"
                         "\n Neighbour Roam State - %s"
@@ -7171,9 +7159,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
                                 pMac->roam.curSubState[useAdapter->sessionId]),
                         pHddStaCtx->conn_info.staId[0],
                         macTraceGetTLState(tlState)
-#else
-			"\n"
-#endif
                         );
                 len += buf;
                 adapter_num++;
@@ -7182,16 +7167,12 @@ static int __iw_get_char_setnone(struct net_device *dev,
             if (pMac) {
                 /* Printing Lim State starting with global lim states */
                 buf = scnprintf(extra + len, WE_MAX_STR_LEN - len,
-#ifdef TRACE_RECORD
                         "\n \n LIM STATES:-"
                         "\n Global Sme State - %s "\
                         "\n Global mlm State - %s "\
                         "\n",
                         macTraceGetLimSmeState(pMac->lim.gLimSmeState),
                         macTraceGetLimMlmState(pMac->lim.gLimMlmState)
-#else
-			"\n"
-#endif
                         );
                 len += buf;
 
@@ -7201,7 +7182,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
                     if ( pMac->lim.gpSession[count].valid )
                     {
                         buf = scnprintf(extra + len, WE_MAX_STR_LEN - len,
-#ifdef TRACE_RECORD
                         "\n Lim Valid Session %d:-"
                         "\n PE Sme State - %s "
                         "\n PE Mlm State - %s "
@@ -7209,9 +7189,6 @@ static int __iw_get_char_setnone(struct net_device *dev,
                         check,
                         macTraceGetLimSmeState(pMac->lim.gpSession[count].limSmeState),
                         macTraceGetLimMlmState(pMac->lim.gpSession[count].limMlmState)
-#else
-			"\n"
-#endif
                         );
 
                         len += buf;

@@ -501,7 +501,6 @@ static void hdd_vos_trace_enable(VOS_MODULE_ID moduleId, v_U32_t bitmask)
 }
 
 
-#ifdef WLAN_DEBUG
 /**---------------------------------------------------------------------------
 
   \brief hdd_wdi_trace_enable() - Configure initial WDI Trace enable
@@ -542,7 +541,6 @@ static void hdd_wdi_trace_enable(wpt_moduleid moduleId, v_U32_t bitmask)
       bitmask >>= 1;
    }
 }
-#endif
 
 /*
  * FUNCTION: wlan_hdd_validate_context
@@ -11938,7 +11936,6 @@ int hdd_wlan_startup(struct device *dev )
    hdd_vos_trace_enable(VOS_MODULE_ID_HDD_SOFTAP,
                         pHddCtx->cfg_ini->vosTraceEnableHDDSAP);
 
-#ifdef WLAN_DEBUG
    // Update WDI trace levels based upon the cfg.ini
    hdd_wdi_trace_enable(eWLAN_MODULE_DAL,
                         pHddCtx->cfg_ini->wdiTraceEnableDAL);
@@ -11948,7 +11945,6 @@ int hdd_wlan_startup(struct device *dev )
                         pHddCtx->cfg_ini->wdiTraceEnableDAT);
    hdd_wdi_trace_enable(eWLAN_MODULE_PAL,
                         pHddCtx->cfg_ini->wdiTraceEnablePAL);
-#endif
 
    if (VOS_FTM_MODE == hdd_get_conparam())
    {
@@ -12637,6 +12633,11 @@ int hdd_wlan_startup(struct device *dev )
    /*Fw mem dump procfs initialization*/
    memdump_init();
    hdd_dp_util_send_rps_ind(pHddCtx);
+
+   pHddCtx->is_fatal_event_log_sup =
+      sme_IsFeatureSupportedByFW(FATAL_EVENT_LOGGING);
+   hddLog(VOS_TRACE_LEVEL_INFO, FL("FATAL_EVENT_LOGGING: %d"),
+          pHddCtx->is_fatal_event_log_sup);
 
    goto success;
 
