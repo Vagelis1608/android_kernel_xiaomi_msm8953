@@ -10,7 +10,7 @@ on property:sys.boot_completed=1
     # Enable Spectrum support
     setprop spectrum.support 1
     # Add kernel name
-    setprop persist.spectrum.kernel Velvet
+    setprop persist.spectrum.kernel Soviet
 
 # Balance (default profile)
 on property:persist.spectrum.profile=0
@@ -33,8 +33,9 @@ on property:persist.spectrum.profile=0
     write /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration 0
     write /sys/module/msm_performance/parameters/touchboost 0
     # Power efficient workques
-    write /sys/module/workqueue/parameters/power_efficient N
+    write /sys/module/workqueue/parameters/power_efficient Y
     # GPU
+    write /sys/module/adreno_idler/parameters/adreno_idler_active 1
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
     write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 133000000
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 510000000
@@ -57,11 +58,12 @@ on property:persist.spectrum.profile=1
     # CPU values
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "blu_active"
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 652000
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 2016000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 2208000
     write /sys/module/msm_performance/parameters/touchboost 0
     # Power efficient workques
     write /sys/module/workqueue/parameters/power_efficient N
     # GPU
+    write /sys/module/adreno_idler/parameters/adreno_idler_active 0
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
     write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 133000000
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 650000000
@@ -82,13 +84,14 @@ on property:persist.spectrum.profile=1
 # Battery
 on property:persist.spectrum.profile=2
     # CPU values
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "alucard"
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "relaxed"
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 652800
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1689000
     write /sys/module/msm_performance/parameters/touchboost 0
     # Power efficient workques
-    write /sys/module/workqueue/parameters/power_efficient N
+    write /sys/module/workqueue/parameters/power_efficient Y
     # GPU
+    write /sys/module/adreno_idler/parameters/adreno_idler_active 1
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
     write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 133000000
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 510000000
@@ -112,10 +115,11 @@ on property:persist.spectrum.profile=3
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "performance"
     write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor "performance"
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 652000
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 2016000
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 2208000
     # Power efficient workques
     write /sys/module/workqueue/parameters/power_efficient N
     # GPU
+    write /sys/module/adreno_idler/parameters/adreno_idler_active 0
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
     write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 400000000
     write /sys/class/kgsl/kgsl-3d0/max_gpuclk 650000000
