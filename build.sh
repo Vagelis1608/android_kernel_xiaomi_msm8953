@@ -31,9 +31,9 @@ echo -e "***********************************************$nocol"
 LC_ALL=C date +%Y-%m-%d
 kernel_dir=$PWD
 build=$kernel_dir/out
-export CROSS_COMPILE=~/kernel/aarch64-linaro-7.x/bin/aarch64-linaro-linux-android-
+export CROSS_COMPILE=~/Android/Kernel/toolchains/aarch64-linaro-7.x/bin/aarch64-linaro-linux-android-
 kernel="Soviet"
-version="R8"
+version="R8.2"
 vendor="xiaomi"
 device="mido"
 zip=zip
@@ -47,7 +47,7 @@ zip_name="$kernel"-"$version"-"$date"-"$device".zip
 
 # Kernel Details
 BASE_AK_VER="Soviet"
-VER=".R8.MIDO"
+VER=".R8.2.MIDO"
 AK_VER="$BASE_AK_VER$VER"
 
 export KBUILD_BUILD_USER=NATO66613
