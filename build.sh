@@ -32,7 +32,7 @@ LC_ALL=C date +%Y-%m-%d
 kernel_dir=$PWD
 build=$kernel_dir/out
 export CROSS_COMPILE=~/Android/Kernel/toolchains/aarch64-linaro-7.x/bin/aarch64-linaro-linux-android-
-kernel="Soviet"
+kernel="ReVolt"
 version="R8.2"
 vendor="xiaomi"
 device="mido"
@@ -46,7 +46,7 @@ modules_dir=$kernel_dir/"$zip"/modules
 zip_name="$kernel"-"$version"-"$date"-"$device".zip
 
 # Kernel Details
-BASE_AK_VER="Soviet"
+BASE_AK_VER="ReVolt"
 VER=".R8.2.MIDO"
 AK_VER="$BASE_AK_VER$VER"
 

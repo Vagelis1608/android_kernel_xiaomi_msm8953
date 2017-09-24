@@ -45,9 +45,13 @@ chmod -R 755 /tmp/anykernel/tools /tmp/anykernel/bin;
 bb=/tmp/anykernel/tools/busybox;
 
 ui_print "$(file_getprop /tmp/anykernel/anykernel.sh kernel.string)";
-ui_print " ";
-ui_print "REVOLT Kernel For Redmi Note 4";
-ui_print " ";
+ui_print "                                       ";
+ui_print "                                       ";
+ui_print "  ReVolt Kernel For MIDO by NATO66613  ";
+ui_print "      ADDING DARK MAGIC TO DEVICE      ";
+ui_print "             WIZARD ON WORK            ";
+ui_print "                                       ";
+ui_print "                                       ";
 umount /system 2>/dev/null;
 mount -o ro -t auto /system;
 mount /data 2>/dev/null;
