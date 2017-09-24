@@ -4,7 +4,7 @@
 ## AnyKernel setup
 # begin properties
 properties() {
-kernel.string=lordarcadius @ xda-developers
+kernel.string=NATO66613 @ xda-developers
 do.devicecheck=1
 do.modules=0
 do.cleanup=1
@@ -408,4 +408,3 @@ insert_line init.rc "import /init.spectrum.rc" after "import /init.trace.rc" "im
 write_boot;
 
 ## end install
-
