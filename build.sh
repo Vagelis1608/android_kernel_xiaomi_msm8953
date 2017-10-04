@@ -32,8 +32,8 @@ LC_ALL=C date +%Y-%m-%d
 kernel_dir=$PWD
 build=$kernel_dir/out
 export CROSS_COMPILE=~/gcc-prebuilts/bin/aarch64-linaro-linux-android-
-kernel="TEST"
-version="5.0"
+kernel="ReVolt"
+version="R8.3"
 vendor="xiaomi"
 device="mido"
 zip=zip
@@ -46,8 +46,8 @@ modules_dir=$kernel_dir/"$zip"/modules
 zip_name="$kernel"-"$version"-"$date"-"$device".zip
 
 # Kernel Details
-BASE_AK_VER="TEST"
-VER=".R5.MIDO"
+BASE_AK_VER="ReVolt"
+VER=".R8.3.MIDO"
 AK_VER="$BASE_AK_VER$VER"
 
 export KBUILD_BUILD_USER=NATO66613
