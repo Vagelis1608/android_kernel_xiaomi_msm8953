@@ -33,7 +33,7 @@ kernel_dir=$PWD
 build=$kernel_dir/out
 export CROSS_COMPILE=~/gcc-prebuilts/bin/aarch64-linaro-linux-android-
 kernel="ReVolt"
-version="R8.6"
+version="R8.7"
 vendor="xiaomi"
 device="mido"
 zip=zip
@@ -47,7 +47,7 @@ zip_name="$kernel"-"$version"-"$date"-"$device".zip
 
 # Kernel Details
 BASE_AK_VER="ReVolt"
-VER=".R8.6.MIDO"
+VER=".R8.7.MIDO"
 AK_VER="$BASE_AK_VER$VER"
 
 export KBUILD_BUILD_USER=NATO66613
@@ -135,7 +135,7 @@ if [ -f "$zip"/"$kerneltype" ]; then
 	cd ..
 	rm -rf arch/arm64/boot/"$kerneltype"
 	echo "Generating changelog..."
-        git --no-pager log --pretty=oneline --abbrev-commit 0c083093327fb6488456dabd868bf50a18371cf8..HEAD > zip/changelog.txt
+        git --no-pager log --pretty=oneline --abbrev-commit edbd659fc09f269cfc34c5faaf69ff38bad00e22..HEAD > zip/changelog.txt
         paste zip/changelog.txt
         #rm zip/changelog.txt
 	export outdir=""$build""
