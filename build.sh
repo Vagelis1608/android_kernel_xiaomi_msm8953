@@ -33,7 +33,7 @@ kernel_dir=$PWD
 build=$kernel_dir/out
 export CROSS_COMPILE=~/gcc-prebuilts/bin/aarch64-linaro-linux-android-
 kernel="ReVolt"
-version="R8.7"
+version="R8.7-MIUI"
 vendor="xiaomi"
 device="mido"
 zip=zip
@@ -47,7 +47,7 @@ zip_name="$kernel"-"$version"-"$date"-"$device".zip
 
 # Kernel Details
 BASE_AK_VER="ReVolt"
-VER=".R8.7.MIDO"
+VER=".R8.7.MIDO-MIUI"
 AK_VER="$BASE_AK_VER$VER"
 
 export KBUILD_BUILD_USER=NATO66613
@@ -90,12 +90,10 @@ fi
 echo "Extracting files..."
 if [ -f arch/arm64/boot/"$kerneltype" ]; then
 	cp arch/arm64/boot/"$kerneltype" "$zip"/"$kerneltype"
-#        mkdir -p zip/modules/pronto
-#	cp drivers/staging/prima/wlan.ko zip/modules/pronto/pronto_wlan.ko
-	find . -name '*.ko' -exec cp {} $modules_dir/ \;
-	"$CROSS_COMPILE"strip --strip-unneeded "$zip"/modules/*.ko &> /dev/null
-        mkdir -p zip/modules/pronto/
-        mv zip/modules/wlan.ko zip/modules/pronto/pronto_wlan.ko
+        mkdir -p zip/modules/pronto
+	scripts/sign-file sha512 signing_key.priv signing_key.x509 drivers/staging/prima/wlan.ko
+	cp drivers/staging/prima/wlan.ko zip/modules/wlan.ko
+	cp drivers/staging/prima/wlan.ko zip/modules/pronto/pronto_wlan.ko
 else
 	echo "Nothing has been made..."
 	read -p "Clean working directory..(y/n)? : " achoice
